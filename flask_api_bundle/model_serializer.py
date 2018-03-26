@@ -13,6 +13,9 @@ READ_ONLY_FIELDS = {'slug', 'created_at', 'updated_at'}
 
 class ModelSerializerMeta(ModelSchemaMeta):
     def __new__(mcs, name, bases, clsdict):
+        if '__init__' in clsdict:
+            clsdict['__init__'] = unchained.inject()(clsdict['__init__'])
+
         if ABSTRACT_ATTR in clsdict:
             return super().__new__(mcs, name, bases, clsdict)
 
