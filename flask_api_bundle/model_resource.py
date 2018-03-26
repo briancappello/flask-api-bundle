@@ -11,7 +11,7 @@ from flask_controller_bundle.metaclasses import ResourceMeta, deep_getattr
 from flask_controller_bundle.route import Route
 from flask_controller_bundle.utils import get_param_tuples
 from flask_sqlalchemy_bundle import BaseModel, SessionManager, param_converter
-from flask_unchained import injectable
+from flask_unchained import unchained, injectable
 from functools import partial
 from http import HTTPStatus
 from marshmallow import MarshalResult
@@ -76,6 +76,8 @@ class ModelResource(Resource, metaclass=ModelResourceMeta):
 
     def __init__(self, session_manager: SessionManager = injectable):
         self.session_manager = session_manager
+        if isinstance(self.model, str):
+            self.model = unchained.flask_sqlalchemy_bundle.models[self.model]
 
     # NOTE:
     # docstrings for these default methods must be 2 lines with the ---
