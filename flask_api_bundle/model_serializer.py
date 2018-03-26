@@ -1,4 +1,5 @@
 from flask_controller_bundle.attr_constants import ABSTRACT_ATTR
+from flask_controller_bundle.metaclasses import deep_getattr
 from flask_unchained import unchained
 from flask_unchained.string_utils import camel_case, title_case
 from marshmallow.exceptions import ValidationError
@@ -15,7 +16,7 @@ class ModelSerializerMeta(ModelSchemaMeta):
         if ABSTRACT_ATTR in clsdict:
             return super().__new__(mcs, name, bases, clsdict)
 
-        meta = clsdict.get('Meta')
+        meta = deep_getattr(clsdict, bases, 'Meta', None)
         model_missing = False
         try:
             if meta.model is None:
@@ -28,8 +29,8 @@ class ModelSerializerMeta(ModelSchemaMeta):
                                  f'Meta model attribute')
         elif isinstance(meta.model, str):
             meta.model = unchained.flask_sqlalchemy_bundle.models[meta.model]
-            clsdict['Meta'] = meta
 
+        clsdict['Meta'] = meta
         return super().__new__(mcs, name, bases, clsdict)
 
 
