@@ -13,8 +13,13 @@ from .model_serializer import ModelSerializer
 class FlaskApiBundle(Bundle):
     @classmethod
     def after_init_app(cls, app: Flask):
+        from werkzeug.local import LocalProxy
+
         class JSONEncoder(app.json_encoder):
             def default(self, obj):
+                if isinstance(obj, LocalProxy):
+                    obj = obj._get_current_object()
+
                 if isinstance(obj, enum.Enum):
                     return obj.name
 
