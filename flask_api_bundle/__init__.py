@@ -20,21 +20,19 @@ class FlaskApiBundle(Bundle):
 
                 if isinstance(obj, BaseModel):
                     model_name = obj.__class__.__name__
-                    serializer = (unchained
-                                  .flask_api_bundle
-                                  .serializers_by_model.get(model_name))
-                    if serializer:
-                        return serializer().dump(obj).data
+                    serializer_cls = (unchained.flask_api_bundle
+                                      .serializers_by_model.get(model_name))
+                    if serializer_cls:
+                        return serializer_cls().dump(obj).data
 
                 # FIXME serializer-many
-                if (isinstance(obj, (list, tuple)) and obj
+                if (obj and isinstance(obj, (list, tuple))
                         and isinstance(obj[0], BaseModel)):
                     model_name = obj[0].__class__.__name__
-                    serializer = (unchained
-                                  .flask_api_bundle
-                                  .serializers_by_model.get(model_name))
-                    if serializer:
-                        return serializer(many=True).dump(obj).data
+                    serializer_cls = (unchained.flask_api_bundle
+                                      .serializers_by_model.get(model_name))
+                    if serializer_cls:
+                        return serializer_cls(many=True).dump(obj).data
 
                 return super().default(obj)
 
