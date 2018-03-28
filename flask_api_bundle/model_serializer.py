@@ -1,15 +1,75 @@
 from flask_controller_bundle.attr_constants import ABSTRACT_ATTR
 from flask_controller_bundle.metaclasses import deep_getattr
+from flask_marshmallow.sqla import SchemaOpts
 from flask_unchained import unchained
 from flask_unchained.string_utils import camel_case, title_case
 from marshmallow.exceptions import ValidationError
 from marshmallow.marshalling import Unmarshaller as BaseUnmarshaller
+from marshmallow_sqlalchemy.convert import (
+    ModelConverter as BaseModelConverter, _should_exclude_field)
 from marshmallow_sqlalchemy.schema import ModelSchemaMeta
 
 from .extensions import ma
 
 
 READ_ONLY_FIELDS = {'slug', 'created_at', 'updated_at'}
+
+
+class ModelConverter(BaseModelConverter):
+    def fields_for_model(self, model, include_fk=False, fields=None,
+                         exclude=None, base_fields=None, dict_cls=dict):
+        """
+        Overridden to correctly name hybrid_property fields, eg given::
+
+            class User(db.Model):
+                _password = db.Column('password', db.String)
+
+                @db.hybrid_property
+                def password(self):
+                    return self._password
+
+                @password.setter
+                def password(self, password):
+                    self._password = hash_password(password)
+
+        In this case upstream marshmallow_sqlalchemy uses '_password' for the
+        field name, but we use 'password', as would be expected because it's
+        the attribute name used for the public interface of the Model. In order
+        for this logic to work, the column name must be specified and it must be
+        the same as the hybrid property name. Otherwise we just fallback to the
+        upstream naming convention.
+        """
+        result = dict_cls()
+        base_fields = base_fields or {}
+        for prop in model.__mapper__.iterate_properties:
+            if _should_exclude_field(prop, fields=fields, exclude=exclude):
+                continue
+
+            attr_name = prop.key
+            if hasattr(prop, 'columns'):
+                if not include_fk:
+                    # Only skip a column if there is no overriden column
+                    # which does not have a Foreign Key.
+                    for column in prop.columns:
+                        if not column.foreign_keys:
+                            break
+                    else:
+                        continue
+
+                col_name = prop.columns[0].name
+                if attr_name != col_name and hasattr(model, col_name):
+                    attr_name = col_name
+
+            field = base_fields.get(attr_name) or self.property2field(prop)
+            if field:
+                result[attr_name] = field
+        return result
+
+
+class ModelSerializerOpts(SchemaOpts):
+    def __init__(self, meta, **kwargs):
+        super().__init__(meta, **kwargs)
+        self.model_converter = getattr(meta, 'model_converter', ModelConverter)
 
 
 class ModelSerializerMeta(ModelSchemaMeta):
@@ -86,6 +146,8 @@ class ModelSerializer(ma.ModelSchema, metaclass=ModelSerializerMeta):
     field naming conversion.
     """
     __abstract__ = True
+
+    OPTIONS_CLASS = ModelSerializerOpts
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
