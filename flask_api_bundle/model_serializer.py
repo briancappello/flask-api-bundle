@@ -3,6 +3,7 @@ from flask_controller_bundle.metaclasses import deep_getattr
 from flask_unchained import unchained
 from flask_unchained.string_utils import camel_case, title_case
 from marshmallow.exceptions import ValidationError
+from marshmallow.marshalling import Unmarshaller as BaseUnmarshaller
 from marshmallow_sqlalchemy.schema import ModelSchemaMeta
 
 from .extensions import ma
@@ -35,6 +36,19 @@ class ModelSerializerMeta(ModelSchemaMeta):
 
         clsdict['Meta'] = meta
         return super().__new__(mcs, name, bases, clsdict)
+
+
+class Unmarshaller(BaseUnmarshaller):
+    def deserialize(self, data, fields_dict, many=False, partial=False,
+                    dict_class=dict, index_errors=True, index=None):
+        # when data is None, which happens when a POST request was made with an
+        # empty body, convert it to an empty dict. works around an exception
+        # deep in marshmallow.schema.BaseSchema._invoke_field_validators where
+        # it expects data to be a dict
+        data = data or {}
+        return super().deserialize(data, fields_dict, many, partial,
+                                   dict_class, index_errors, index)
+    __call__ = deserialize
 
 
 class ModelSerializer(ma.ModelSchema, metaclass=ModelSerializerMeta):
@@ -72,6 +86,10 @@ class ModelSerializer(ma.ModelSchema, metaclass=ModelSerializerMeta):
     field naming conversion.
     """
     __abstract__ = True
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._unmarshal = Unmarshaller()
 
     def is_create(self):
         """
