@@ -144,7 +144,7 @@ class ModelResource(Resource, metaclass=ModelResourceMeta):
         the database and returns the object with an HTTP 201 status code)
         """
         if commit:
-            self.session_manager.add(instance, commit=True)
+            self.session_manager.save(instance, commit=True)
         return instance, HTTPStatus.CREATED
 
     def deleted(self, instance):
@@ -167,7 +167,7 @@ class ModelResource(Resource, metaclass=ModelResourceMeta):
         Convenience method for updating a model (automatically commits it to
         the database and returns the object with with an HTTP 200 status code)
         """
-        self.session_manager.add(instance, commit=True)
+        self.session_manager.save(instance, commit=True)
         return instance
 
     def dispatch_request(self, method_name, *view_args, **view_kwargs):
