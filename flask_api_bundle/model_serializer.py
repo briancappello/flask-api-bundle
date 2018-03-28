@@ -174,8 +174,8 @@ class ModelSerializer(ma.ModelSchema, metaclass=ModelSerializerMeta):
     def handle_error(self, error, data):
         """
         Customize the error messages for required/not-null validators with
-        dynamically generated field names. This is definitely a little hacky
-        (it mutates state, uses hardcoded strings), but unsure how better to do it
+        dynamically generated field names. This is definitely a little hacky (it
+        mutates state, uses hardcoded strings), but unsure how better to do it
         """
         required_messages = {'Missing data for required field.',
                              'Field may not be null.'}
