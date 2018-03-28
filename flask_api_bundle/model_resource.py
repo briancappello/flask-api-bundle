@@ -7,11 +7,12 @@ from flask_controller_bundle.attr_constants import (
 from flask_controller_bundle.constants import (
     ALL_METHODS, INDEX_METHODS, MEMBER_METHODS,
     CREATE, DELETE, GET, INDEX, PATCH, PUT)
-from flask_controller_bundle.metaclasses import ResourceMeta, deep_getattr
+from flask_controller_bundle.metaclasses import ResourceMeta
 from flask_controller_bundle.route import Route
 from flask_controller_bundle.utils import get_param_tuples
 from flask_sqlalchemy_bundle import BaseModel, SessionManager, param_converter
 from flask_unchained import unchained, injectable
+from flask_unchained.utils import deep_getattr
 from functools import partial
 from http import HTTPStatus
 from marshmallow import MarshalResult
