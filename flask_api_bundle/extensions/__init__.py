@@ -1,8 +1,7 @@
-from flask_marshmallow import Marshmallow
+from .marshmallow import Marshmallow
 
 
-ma = Marshmallow()  # FIXME subclass and add marshmallow fields as attributes
-
+ma = Marshmallow()
 
 EXTENSIONS = {
     'ma': (ma, ['db']),

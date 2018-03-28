@@ -1,6 +1,6 @@
 from flask_controller_bundle.attr_constants import ABSTRACT_ATTR
 from flask_controller_bundle.metaclasses import deep_getattr
-from flask_marshmallow.sqla import SchemaOpts
+from flask_marshmallow.sqla import ModelSchema, SchemaOpts
 from flask_unchained import unchained
 from flask_unchained.string_utils import camel_case, title_case
 from marshmallow.exceptions import ValidationError
@@ -8,8 +8,6 @@ from marshmallow.marshalling import Unmarshaller as BaseUnmarshaller
 from marshmallow_sqlalchemy.convert import (
     ModelConverter as BaseModelConverter, _should_exclude_field)
 from marshmallow_sqlalchemy.schema import ModelSchemaMeta
-
-from .extensions import ma
 
 
 READ_ONLY_FIELDS = {'slug', 'created_at', 'updated_at'}
@@ -122,7 +120,7 @@ class Unmarshaller(BaseUnmarshaller):
     __call__ = deserialize
 
 
-class ModelSerializer(ma.ModelSchema, metaclass=ModelSerializerMeta):
+class ModelSerializer(ModelSchema, metaclass=ModelSerializerMeta):
     """
     Base class for database model serializers. This is pretty much a stock
     :class:`flask_marshmallow.sqla.ModelSchema`: it will automatically create

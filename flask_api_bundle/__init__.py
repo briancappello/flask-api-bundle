@@ -1,18 +1,17 @@
 import enum
 
 from flask import Flask
-from flask_sqlalchemy_bundle import BaseModel
-from flask_unchained import Bundle, unchained
-from marshmallow import (fields, pre_load, post_load, pre_dump, post_dump,
-                         validates, validates_schema, ValidationError)
+from flask_unchained import Bundle
 
+from .extensions import ma
 from .model_resource import ModelResource
-from .model_serializer import ModelSerializer
 
 
 class FlaskApiBundle(Bundle):
     @classmethod
     def after_init_app(cls, app: Flask):
+        from flask_sqlalchemy_bundle import BaseModel
+        from flask_unchained import unchained
         from werkzeug.local import LocalProxy
 
         class JSONEncoder(app.json_encoder):
