@@ -65,6 +65,17 @@ class ModelConverter(BaseModelConverter):
                 result[attr_name] = field
         return result
 
+    def property2field(self, prop, instance=True, field_class=None, **kwargs):
+        field = super().property2field(prop, instance, field_class, **kwargs)
+        # when a column is not nullable, mark the field as required
+        if hasattr(prop, 'columns'):
+            col = prop.columns[0]
+            # we skip primary key columns because there's no way to tell here if
+            # we're generating fields for a create or an update
+            if not col.primary_key and not col.nullable:
+                field.required = True
+        return field
+
 
 class ModelSerializerOpts(SchemaOpts):
     def __init__(self, meta, **kwargs):
