@@ -1,6 +1,7 @@
 from flask_controller_bundle.attr_constants import ABSTRACT_ATTR
 from flask_marshmallow.sqla import ModelSchema, SchemaOpts
 from flask_unchained import unchained
+from flask_unchained.di import setup_class_dependency_injection
 from flask_unchained.string_utils import camel_case, title_case
 from flask_unchained.utils import deep_getattr
 from marshmallow.exceptions import ValidationError
@@ -83,9 +84,7 @@ class ModelSerializerOpts(SchemaOpts):
 
 class ModelSerializerMeta(ModelSchemaMeta):
     def __new__(mcs, name, bases, clsdict):
-        if '__init__' in clsdict:
-            clsdict['__init__'] = unchained.inject()(clsdict['__init__'])
-
+        setup_class_dependency_injection(name, clsdict)
         if ABSTRACT_ATTR in clsdict:
             return super().__new__(mcs, name, bases, clsdict)
 
