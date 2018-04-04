@@ -6,7 +6,7 @@ from flask_controller_bundle.attr_constants import (
     ABSTRACT_ATTR, CONTROLLER_ROUTES_ATTR, FN_ROUTES_ATTR)
 from flask_controller_bundle.constants import (
     ALL_METHODS, INDEX_METHODS, MEMBER_METHODS,
-    CREATE, DELETE, GET, INDEX, PATCH, PUT)
+    CREATE, DELETE, GET, LIST, PATCH, PUT)
 from flask_controller_bundle.metaclasses import ResourceMeta
 from flask_controller_bundle.route import Route
 from flask_controller_bundle.utils import get_param_tuples
@@ -49,17 +49,19 @@ class ModelResourceMeta(ResourceMeta):
                 rule = deep_getattr(clsdict, bases, 'member_param')
             route.rule = rule
             routes[method_name] = [route]
-        setattr(mcs, CONTROLLER_ROUTES_ATTR, routes)
 
         cls = super().__new__(mcs, name, bases, clsdict)
         if cls.model is None:
             raise AttributeError(f'{name} is missing the model attribute')
+        setattr(cls, CONTROLLER_ROUTES_ATTR, routes)
         return cls
 
 
 class ModelResource(Resource, metaclass=ModelResourceMeta):
     __abstract__ = True
 
+    # FIXME all of these might be nicer as class Meta attributes (mostly just
+    # for consistency with other places, eg model and serializer classes)
     model: Type[BaseModel] = None
     serializer: ModelSerializer = None
     serializer_create: ModelSerializer = None
@@ -85,9 +87,9 @@ class ModelResource(Resource, metaclass=ModelResourceMeta):
     # (otherwise flasgger will shit a brick)
 
     @route
-    def index(self, instances):
+    def list(self, instances):
         """
-        Default implementation for index view
+        Default implementation for list view
         ---
         """
         return instances
@@ -200,7 +202,7 @@ class ModelResource(Resource, metaclass=ModelResourceMeta):
                 or method_name not in self.include_decorators):
             return decorators
 
-        if method_name == INDEX:
+        if method_name == LIST:
             decorators.append(partial(list_loader, model=self.model))
         elif method_name in MEMBER_METHODS:
             param_name = get_param_tuples(self.member_param)[0][1]
