@@ -155,13 +155,6 @@ class ModelResource(Resource, metaclass=ModelResourceMeta):
         self.session_manager.delete(instance, commit=True)
         return '', HTTPStatus.NO_CONTENT
 
-    def errors(self, errors):
-        """
-        Convenience method for returning a dictionary of errors with an
-        HTTP 400 status code
-        """
-        return {'errors': errors}, HTTPStatus.BAD_REQUEST
-
     def updated(self, instance):
         """
         Convenience method for updating a model (automatically commits it to
