@@ -22,19 +22,19 @@ class FlaskApiBundle(Bundle):
                 if isinstance(obj, enum.Enum):
                     return obj.name
 
+                api_store = unchained.flask_api_bundle
                 if isinstance(obj, BaseModel):
                     model_name = obj.__class__.__name__
-                    serializer_cls = (unchained.flask_api_bundle
-                                      .serializers_by_model.get(model_name))
+                    serializer_cls = api_store.serializers_by_model.get(model_name)
                     if serializer_cls:
                         return serializer_cls().dump(obj).data
 
-                # FIXME serializer-many
-                if (obj and isinstance(obj, (list, tuple))
+                elif (obj and isinstance(obj, (list, tuple))
                         and isinstance(obj[0], BaseModel)):
                     model_name = obj[0].__class__.__name__
-                    serializer_cls = (unchained.flask_api_bundle
-                                      .serializers_by_model.get(model_name))
+                    serializer_cls = api_store.many_by_model.get(
+                        model_name,
+                        api_store.serializers_by_model.get(model_name))
                     if serializer_cls:
                         return serializer_cls(many=True).dump(obj).data
 

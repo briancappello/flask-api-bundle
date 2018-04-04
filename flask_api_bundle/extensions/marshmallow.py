@@ -64,3 +64,11 @@ class Marshmallow:
         db = app.extensions['sqlalchemy'].db
         self.ModelSerializer.OPTIONS_CLASS.session = db.session
         app.extensions['ma'] = self
+
+    def serializer(self, create=False, many=False):
+        def wrapper(cls):
+            cls.__kind__ = (create and 'create'
+                            or many and 'many'
+                            or 'all')
+            return cls
+        return wrapper

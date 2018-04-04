@@ -9,13 +9,21 @@ from ..model_serializer import ModelSerializer
 class RegisterSerializersHook(AppFactoryHook):
     bundle_module_name = 'serializers'
     name = 'serializers'
-    priority = 15
+    run_after = ['models']
 
     def process_objects(self, app: Flask, objects):
         for name, serializer in objects.items():
+            self.store.serializers[name] = serializer
+
             model = serializer.Meta.model
             model_name = model if isinstance(model, str) else model.__name__
-            self.store.serializers_by_model[model_name] = serializer
+            kind = getattr(serializer, '__kind__', 'all')
+            if kind == 'all':
+                self.store.serializers_by_model[model_name] = serializer
+            elif kind == 'create':
+                self.store.create_by_model[model_name] = serializer
+            elif kind == 'many':
+                self.store.many_by_model[model_name] = serializer
 
     def type_check(self, obj):
         if not inspect.isclass(obj):

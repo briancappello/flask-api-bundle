@@ -9,22 +9,19 @@ class RegisterResourcesHook(AppFactoryHook):
     bundle_module_name = 'views'
     bundle_override_module_name_attr = 'resources_module_name'
     name = 'resources'
-    priority = 70
+    run_after = ['models', 'serializers']
 
     def process_objects(self, app, objects):
         for name, resource_cls in objects.items():
-            try:
-                model = resource_cls.model
-                model_name = model if isinstance(model, str) else model.__name__
-            except AttributeError:
-                continue
+            if isinstance(resource_cls.model, str):
+                resource_cls.model = (self.unchained.flask_sqlalchemy_bundle
+                                      .models[resource_cls.model])
+            model_name = resource_cls.model.__name__
 
-            self.set_serializers(model_name, resource_cls)
+            self.attach_serializers_to_resource_cls(model_name, resource_cls)
             self.store.resources_by_model[model_name] = resource_cls
 
-    # FIXME allow declaring custom many serializer
-    # until then, it can be explicitly instantiated on the resource class
-    def set_serializers(self, model_name, resource_cls):
+    def attach_serializers_to_resource_cls(self, model_name, resource_cls):
         try:
             serializer_cls = self.store.serializers_by_model[model_name]
         except KeyError:
@@ -33,9 +30,11 @@ class RegisterResourcesHook(AppFactoryHook):
         if resource_cls.serializer is None:
             resource_cls.serializer = serializer_cls()
         if resource_cls.serializer_many is None:
-            resource_cls.serializer_many = serializer_cls(many=True)
+            resource_cls.serializer_many = self.store.many_by_model.get(
+                model_name, serializer_cls)(many=True)
         if resource_cls.serializer_create is None:
-            serializer = serializer_cls()
+            serializer = self.store.create_by_model.get(
+                model_name, serializer_cls)()
             serializer.context['is_create'] = True
             resource_cls.serializer_create = serializer
 
