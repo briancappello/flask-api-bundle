@@ -4,7 +4,6 @@ import marshmallow as ma
 from flask import Flask
 from flask_marshmallow.sqla import HyperlinkRelated
 
-from ..model_resource import ModelResource
 from ..model_serializer import ModelSerializer
 
 
@@ -12,7 +11,6 @@ class Marshmallow:
     def __init__(self):
         self.Serializer = flask_ma.Schema
         self.ModelSerializer = ModelSerializer
-        self.ModelResource = ModelResource
 
         # alias marshmallow stuffs
         self.pre_load = ma.pre_load
