@@ -1,3 +1,15 @@
+"""
+    flask_api_bundle
+    ~~~~~~~~~~~~~~~~
+
+    Adds RESTful API support to Flask Unchained
+
+    :copyright: Copyright © 2018 Brian Cappello
+    :license: MIT, see LICENSE for more details
+"""
+
+__version__ = '0.1.0'
+
 import enum
 
 from flask import Flask
