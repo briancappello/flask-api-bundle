@@ -1,15 +1,15 @@
 import inspect
 
 from flask import jsonify, make_response
-from flask_controller_bundle import Resource, route
-from flask_controller_bundle.attr_constants import (
+from flask_unchained import Resource, route
+from flask_unchained.bundles.controller.attr_constants import (
     ABSTRACT_ATTR, CONTROLLER_ROUTES_ATTR, FN_ROUTES_ATTR)
-from flask_controller_bundle.constants import (
+from flask_unchained import (
     ALL_METHODS, INDEX_METHODS, MEMBER_METHODS,
     CREATE, DELETE, GET, LIST, PATCH, PUT)
-from flask_controller_bundle.metaclasses import ResourceMeta
-from flask_controller_bundle.route import Route
-from flask_controller_bundle.utils import get_param_tuples
+from flask_unchained.bundles.controller.metaclasses import ResourceMeta
+from flask_unchained.bundles.controller.route import Route
+from flask_unchained.bundles.controller.utils import get_param_tuples
 from flask_sqlalchemy_bundle import BaseModel, SessionManager, param_converter
 from flask_unchained import unchained, injectable
 from flask_unchained.utils import deep_getattr

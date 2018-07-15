@@ -1,10 +1,11 @@
-from flask_controller_bundle.attr_constants import ABSTRACT_ATTR
+from flask_unchained.bundles.controller.attr_constants import ABSTRACT_ATTR
 from flask_marshmallow.sqla import ModelSchema, SchemaOpts
+from flask_sqlalchemy_bundle import db
 from flask_unchained import unchained
 from flask_unchained.di import setup_class_dependency_injection
 from flask_unchained.string_utils import camel_case, title_case
 from flask_unchained.utils import deep_getattr
-from marshmallow.exceptions import ValidationError
+from marshmallow.exceptions import ValidationError as MarshmallowValidationError
 from marshmallow.marshalling import Unmarshaller as BaseUnmarshaller
 from marshmallow_sqlalchemy.convert import (
     ModelConverter as BaseModelConverter, _should_exclude_field)
@@ -211,4 +212,20 @@ class ModelSerializer(ModelSchema, metaclass=ModelSerializerMeta):
     def validate_id(self, id):
         if self.is_create() or int(id) == int(self.instance.id):
             return
-        raise ValidationError('ids do not match')
+        raise MarshmallowValidationError('ids do not match')
+
+    def _do_load(self, data, many=None, partial=None, postprocess=True):
+        result, errors = super()._do_load(data or {}, many, partial, postprocess)
+        if not isinstance(data, dict):
+            return result, errors
+
+        try:
+            self.Meta.model.validate(**data)
+        except db.ValidationErrors as e:
+            for error in e.errors:
+                if error.column in errors:
+                    errors[error.column].append(error)
+                else:
+                    errors[error.column] = [error]
+
+        return result, errors

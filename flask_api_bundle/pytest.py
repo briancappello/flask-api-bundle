@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from flask_controller_bundle.pytest import HtmlTestClient, HtmlTestResponse
+from flask_unchained.pytest import HtmlTestClient, HtmlTestResponse
 from werkzeug.utils import cached_property
 
 

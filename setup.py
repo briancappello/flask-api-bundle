@@ -29,10 +29,9 @@ setup(
     zip_safe=False,
     python_requires='>=3.6',
     install_requires=[
-        'flask-controller-bundle>=0.2.0',
         'flask-marshmallow>=0.8.0',
-        'flask-sqlalchemy-bundle>=0.2.0',
-        'flask-unchained>=0.2.0',
+        'flask-sqlalchemy-bundle>=0.3.0',
+        'flask-unchained>=0.3.0',
         'marshmallow>=2.13.6',
         'marshmallow-sqlalchemy>=0.13.1',
     ],
