@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 0.2.0 (unreleased)
+## 0.2.0 (2018/07/14)
 
 * support flask_unchained 0.3.0
 
