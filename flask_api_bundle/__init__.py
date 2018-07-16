@@ -14,6 +14,7 @@ import enum
 
 from flask import Flask
 from flask_unchained import Bundle
+from speaklater import _LazyString
 
 from .extensions import ma
 from .model_resource import ModelResource
@@ -33,6 +34,8 @@ class FlaskApiBundle(Bundle):
 
                 if isinstance(obj, enum.Enum):
                     return obj.name
+                elif isinstance(obj, _LazyString):
+                    return str(obj)
 
                 api_store = unchained.flask_api_bundle
                 if isinstance(obj, BaseModel):

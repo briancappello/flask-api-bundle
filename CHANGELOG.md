@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.2.1 (2018/07/16)
+
+* support serializing gettext lazy translation strings
+
 ## 0.2.0 (2018/07/14)
 
 * support flask_unchained 0.3.0
