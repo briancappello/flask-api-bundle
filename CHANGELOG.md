@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.2.2 (unreleased)
+
+* fix model validation error handling
+
 ## 0.2.1 (2018/07/16)
 
 * support serializing gettext lazy translation strings

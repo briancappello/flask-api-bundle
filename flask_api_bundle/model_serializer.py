@@ -222,10 +222,11 @@ class ModelSerializer(ModelSchema, metaclass=ModelSerializerMeta):
         try:
             self.Meta.model.validate(**data)
         except db.ValidationErrors as e:
-            for error in e.errors:
-                if error.column in errors:
-                    errors[error.column].append(error)
-                else:
-                    errors[error.column] = [error]
+            for column, col_errors in e.errors.items():
+                for error in col_errors:
+                    if column in errors:
+                        errors[column].append(error)
+                    else:
+                        errors[column] = [error]
 
         return result, errors
